@@ -2,92 +2,239 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>German A2 Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>German A2 Mastery App</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        #quiz-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { color: #2d3436; font-size: 1.2rem; }
-        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: 0.2s; font-size: 1rem; }
-        .option-btn:hover { border-color: #0984e3; background: #f1f9ff; }
-        #score-area { text-align: center; display: none; }
-        #progress { font-size: 0.8rem; color: #636e72; margin-bottom: 10px; }
+        /* Modern Mobile-First CSS Variables */
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; }
+
+        /* App Container constrained for Mobile */
+        #app { width: 100%; max-width: 480px; min-height: 100vh; background: var(--bg-color); position: relative; padding-bottom: 70px; display: flex; flex-direction: column; }
+
+        /* Header */
+        header { background: var(--primary); color: white; padding: 20px; text-align: center; font-size: 1.2rem; font-weight: bold; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+        /* Views */
+        .view { display: none; padding: 20px; flex: 1; }
+        .view.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards & Containers */
+        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
+
+        h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-main); }
+        p.subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
+
+        /* Inputs & Buttons */
+        input[type="number"], input[type="text"] { width: 100%; padding: 15px; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem; margin-bottom: 15px; transition: border 0.2s; }
+        input:focus { outline: none; border-color: var(--primary); }
+
+        .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; margin-top: 10px; }
+        .btn-primary:active { background: var(--primary-hover); }
+        
+        .option-btn { background: white; border: 2px solid var(--border); color: var(--text-main); margin-bottom: 10px; text-align: left; }
+        .option-btn:active, .option-btn.selected { border-color: var(--primary); background: #eef2ff; }
+
+        /* Progress Bar */
+        .progress-container { width: 100%; background: var(--border); border-radius: 10px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+
+        /* Analyzer Styles */
+        .result-item { padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid; background: #f9fafb; }
+        .result-correct { border-left-color: var(--success); }
+        .result-wrong { border-left-color: var(--danger); }
+        .result-item span { display: block; font-size: 0.9rem; margin-top: 5px; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; border: 8px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto 20px; color: var(--primary); }
+
+        /* Flashcards */
+        .flashcard-container { perspective: 1000px; width: 100%; height: 250px; margin-bottom: 20px; }
+        .flashcard { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; position: relative; }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .flashcard-front { background: var(--card-bg); color: var(--primary); border: 2px solid var(--primary); }
+        .flashcard-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+        .flashcard-face h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .flashcard-face p { font-size: 1rem; opacity: 0.9; }
+        .fc-controls { display: flex; gap: 10px; }
+
+        /* Bottom Nav */
+        nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 15px; border-top-right-radius: 15px; overflow: hidden; }
+        .nav-item { flex: 1; padding: 15px 0; text-align: center; font-weight: bold; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; }
+        .nav-item.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #f8fafc; }
+
     </style>
 </head>
 <body>
 
-<div id="quiz-container">
-    <div id="quiz-area">
-        <div id="progress">Question 1 of 20</div>
-        <h2 id="question-text">Loading question...</h2>
-        <div id="options-bin"></div>
+<div id="app">
+    <header id="header-title">A2 German Mastery</header>
+
+    <div id="view-setup" class="view active">
+        <div class="card">
+            <h2>Start a New Quiz</h2>
+            <p class="subtitle">Questions are randomly selected and mixed (Multiple Choice, Fill-in, Translation).</p>
+            
+            <label style="font-weight: bold; margin-bottom: 10px; display: block;">Number of Questions:</label>
+            <button class="btn option-btn setup-qty" onclick="setQty(5)">5 Questions (Quick)</button>
+            <button class="btn option-btn setup-qty" onclick="setQty(10)">10 Questions</button>
+            <button class="btn option-btn setup-qty" onclick="setQty(20)">20 Questions</button>
+            
+            <div style="margin-top: 15px;">
+                <input type="number" id="custom-qty" placeholder="Or enter custom amount (e.g. 15)" min="1" max="50">
+            </div>
+
+            <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+        </div>
     </div>
-    <div id="score-area">
-        <h2>Quiz Complete!</h2>
-        <p id="final-score" style="font-size: 2rem; font-weight: bold; color: #00b894;"></p>
-        <button onclick="location.reload()" class="option-btn" style="text-align:center; background:#0984e3; color:white; border:none;">Try Again</button>
+
+    <div id="view-quiz" class="view">
+        <div class="progress-container">
+            <div class="progress-bar" id="quiz-progress"></div>
+        </div>
+        <p class="subtitle" id="quiz-counter" style="text-align: center;">Question 1 of 10</p>
+        
+        <div class="card">
+            <h2 id="q-text">Question text here?</h2>
+            
+            <div id="q-input-area"></div>
+            
+            <button class="btn btn-primary" id="btn-next" onclick="submitAnswer()" style="margin-top: 20px; display: none;">Submit Answer</button>
+        </div>
     </div>
+
+    <div id="view-results" class="view">
+        <div class="card" style="text-align: center;">
+            <h2>Test Complete!</h2>
+            <div class="score-circle" id="result-percentage">0%</div>
+            <p class="subtitle" id="result-score-text">You got 0 out of 0 correct.</p>
+            <button class="btn btn-primary" onclick="switchTab('setup')">Take Another Quiz</button>
+        </div>
+
+        <h2 style="margin-top: 20px; margin-left: 5px;">Work Analyzer</h2>
+        <p class="subtitle" style="margin-left: 5px;">Review your answers below:</p>
+        <div id="analyzer-container">
+            </div>
+    </div>
+
+    <div id="view-flashcards" class="view">
+        <div class="card">
+            <h2 style="text-align: center;">A2 Vocabulary & Grammar</h2>
+            <p class="subtitle" style="text-align: center;" id="fc-counter">Card 1 of 10</p>
+            
+            <div class="flashcard-container" onclick="flipCard()">
+                <div class="flashcard" id="flashcard">
+                    <div class="flashcard-face flashcard-front">
+                        <h3 id="fc-front-text">Front</h3>
+                        <p>Tap to reveal</p>
+                    </div>
+                    <div class="flashcard-face flashcard-back">
+                        <h3 id="fc-back-text">Back</h3>
+                        <p id="fc-back-example">Example sentence</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fc-controls">
+                <button class="btn option-btn" onclick="prevCard()">Previous</button>
+                <button class="btn btn-primary" onclick="nextCard()" style="margin-top:0;">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-item active" id="nav-quiz" onclick="switchTab('setup')">Quiz</div>
+        <div class="nav-item" id="nav-flashcards" onclick="switchTab('flashcards')">Flashcards</div>
+    </nav>
 </div>
 
 <script>
-    const questions = [
-        { q: "Which is the correct past perfect form of: 'Ich gehe ins Kino'?", options: ["Ich bin ins Kino gegangen.", "Ich habe ins Kino gegangen.", "Ich bin ins Kino gegeht.", "Ich habe ins Kino gegeht."], correct: 0 },
-        { q: "Fill in: 'Ich fahre mit ___ (my) Bruder.'", options: ["meinem", "mein", "meinen", "meines"], correct: 0 },
-        { q: "Word order: 'Ich bleibe zu Hause, weil...'", options: ["...ich krank bin.", "...ich bin krank.", "...bin ich krank.", "...krank ich bin."], correct: 0 },
-        { q: "'Ich stelle die Blume auf ___ Tisch.'", options: ["den", "dem", "der", "das"], correct: 0 },
-        { q: "Conjugate: 'Du ___ heute viel lernen.'", options: ["musst", "müsst", "muss", "müssen"], correct: 0 },
-        { q: "Adjective ending: 'Das ist ein schön___ Auto.'", options: ["es", "e", "er", "en"], correct: 0 },
-        { q: "'I would like to pay, please.'", options: ["Ich möchte bitte zahlen.", "Ich möchte bitte bestellen.", "Die Rechnung stimmt.", "Ich lade dich ein."], correct: 0 },
-        { q: "Separable verb: 'anrufen'", options: ["Ich rufe dich morgen an.", "Ich anrufe dich morgen.", "Ich rufe an dich morgen.", "Ich anruf dich morgen."], correct: 0 },
-        { q: "Past tense 'sein': 'Wir ___ gestern im Park.'", options: ["waren", "sind", "war", "wart"], correct: 0 },
-        { q: "Possessive: 'Sie liebt ___ Hund.'", options: ["ihren", "ihr", "ihrem", "ihres"], correct: 0 },
-        { q: "Reflexive: 'Wir freuen ___ auf den Urlaub.'", options: ["uns", "euch", "sich", "mich"], correct: 0 },
-        { q: "Comparative: 'Mein Haus ist ___ als dein Haus.'", options: ["größer", "groß", "am größten", "mehr groß"], correct: 0 },
-        { q: "Time: 'Der Zug fährt ___ 15 Uhr ab.'", options: ["um", "am", "im", "an"], correct: 0 },
-        { q: "Conjunction: 'Ich glaube, ___ es morgen regnet.'", options: ["dass", "ob", "weil", "wenn"], correct: 0 },
-        { q: "Plural of 'das Buch':", options: ["die Bücher", "die Büchs", "die Buchen", "die Bucher"], correct: 0 },
-        { q: "Imperative (informal):", options: ["Komm her!", "Kommen Sie her!", "Kommt her!", "Kommst her!"], correct: 0 },
-        { q: "'The color of the car' (spoken):", options: ["Die Farbe von dem Auto", "Die Farbe das Auto", "Das Auto die Farbe", "Die Farbe den Auto"], correct: 0 },
-        { q: "'___ Kleid kaufst du?' (Which dress?)", options: ["Welches", "Welcher", "Welchen", "Welche"], correct: 0 },
-        { q: "Train platform:", options: ["der Bahnsteig", "der Bahnhof", "der Fahrplan", "die Fahrkarte"], correct: 0 },
-        { q: "'Das Buch gehört ___.' (to me)", options: ["mir", "mich", "ich", "mein"], correct: 0 }
+    // --- DATA BANKS ---
+    const questionBank = [
+        // Multiple Choice
+        { type: "mc", q: "Which is the correct past perfect form of: 'Ich gehe ins Kino'?", options: ["Ich bin ins Kino gegangen.", "Ich habe ins Kino gegangen.", "Ich bin ins Kino gegeht.", "Ich habe ins Kino gegeht."], correct: "Ich bin ins Kino gegangen." },
+        { type: "mc", q: "Word order: 'Ich bleibe zu Hause, weil...'", options: ["...ich krank bin.", "...ich bin krank.", "...bin ich krank.", "...krank ich bin."], correct: "...ich krank bin." },
+        { type: "mc", q: "'Ich stelle die Blume auf ___ Tisch.'", options: ["den", "dem", "der", "das"], correct: "den" },
+        { type: "mc", q: "Adjective ending: 'Das ist ein schön___ Auto.'", options: ["es", "e", "er", "en"], correct: "es" },
+        { type: "mc", q: "Past tense 'sein': 'Wir ___ gestern im Park.'", options: ["waren", "sind", "war", "wart"], correct: "waren" },
+        { type: "mc", q: "Possessive: 'Sie liebt ___ Hund.'", options: ["ihren", "ihr", "ihrem", "ihres"], correct: "ihren" },
+        
+        // Fill in the blanks
+        { type: "fill", q: "Ich fahre mit ___ (my) Bruder.", correct: "meinem" },
+        { type: "fill", q: "Wir freuen ___ (ourselves) auf den Urlaub.", correct: "uns" },
+        { type: "fill", q: "Der Zug fährt ___ (at) 15 Uhr ab.", correct: "um" },
+        { type: "fill", q: "Das Buch gehört ___ (to me).", correct: "mir" },
+        
+        // Translation / Writing
+        { type: "write", q: "Translate to German: 'I would like to pay, please.'", correct: ["ich möchte bitte zahlen", "ich möchte zahlen bitte", "ich moechte bitte zahlen"] },
+        { type: "write", q: "Translate to German: 'The color of the car' (using 'von')", correct: ["die farbe von dem auto", "die farbe vom auto"] },
+        { type: "write", q: "Translate to English: 'Komm her!'", correct: ["come here", "come here!"] },
+        { type: "write", q: "Translate to German: 'I have to learn a lot today.'", correct: ["ich muss heute viel lernen", "heute muss ich viel lernen"] },
+        { type: "write", q: "Translate to English: 'Welches Kleid kaufst du?'", correct: ["which dress are you buying", "which dress are you buying?", "which dress do you buy", "which dress do you buy?"] }
     ];
 
-    let currentQ = 0;
-    let score = 0;
+    const flashcardBank = [
+        { front: "der Bahnhof", back: "Train station", example: "Ich warte am Bahnhof auf dich." },
+        { front: "anrufen (separable)", back: "To call (on the phone)", example: "Ich rufe dich morgen an." },
+        { front: "weil", back: "Because (moves verb to end)", example: "Ich lerne Deutsch, weil ich in Berlin lebe." },
+        { front: "der Bahnsteig", back: "Train platform", example: "Der Zug fährt auf Bahnsteig 3 ab." },
+        { front: "größer als", back: "Bigger than (comparative)", example: "Mein Haus ist größer als dein Haus." },
+        { front: "dass", back: "That (conjunction, verb to end)", example: "Ich glaube, dass es morgen regnet." }
+    ];
 
-    function loadQuestion() {
-        if (currentQ < questions.length) {
-            document.getElementById('progress').innerText = `Question ${currentQ + 1} of 20`;
-            document.getElementById('question-text').innerText = questions[currentQ].q;
-            const bin = document.getElementById('options-bin');
-            bin.innerHTML = '';
-            questions[currentQ].options.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(index);
-                bin.appendChild(btn);
-            });
-        } else {
-            showResults();
+    // --- STATE VARIABLES ---
+    let quizQueue = [];
+    let currentQIndex = 0;
+    let userAnswers = []; // Array of { qText, userAnswer, correctAnswer, isCorrect, type }
+    let selectedQty = 10;
+    let tempMCAnswer = "";
+
+    let currentCardIndex = 0;
+
+    // --- HELPER FUNCTIONS ---
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
         }
+        return array;
     }
 
-    function checkAnswer(idx) {
-        if (idx === questions[currentQ].correct) score++;
-        currentQ++;
-        loadQuestion();
+    function normalizeText(text) {
+        // Removes punctuation, extra spaces, and makes lowercase for forgiving text matching
+        return text.toLowerCase().replace(/[.,!?]/g, "").trim().replace(/\s+/g, " ");
     }
 
-    function showResults() {
-        document.getElementById('quiz-area').style.display = 'none';
-        document.getElementById('score-area').style.display = 'block';
-        document.getElementById('final-score').innerText = `${score} / 20`;
-    }
-
-    loadQuestion();
-</script>
-
-</body>
-</html>
+    // --- UI NAVIGATION ---
+    function switchTab(tab) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
+        if(tab === 'setup') {
+            document.getElementById('view-setup').classList.add('active');
+            document.getElementById('nav-quiz').classList.add('active');
+            document.getElementById('header-title').innerText = "Quiz Setup";
+        } else if(tab === 'flashcards') {
+            document.getElementById('view-flashcards').classList.add('active');
+            document.getElementById('nav-flashcards').classList.add('active');
+            document.getElementById('header-title').innerText = "Flashcards";
+            loadFlashcard();
+        } else if(tab === 'quiz') {
+            document.getElementById('view-quiz').
