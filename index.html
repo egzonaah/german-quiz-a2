@@ -3,238 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>German A2 Mastery App</title>
+    <title>German A2 Pro</title>
     <style>
-        /* Modern Mobile-First CSS Variables */
         :root {
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
+            --bg: #f8fafc;
+            --card: #ffffff;
             --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --success: #10b981;
+            --secondary: #6366f1;
+            --success: #22c55e;
             --danger: #ef4444;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+            --text: #1e293b;
+            --border: #e2e8f0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); line-height: 1.5; }
 
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; }
+        /* Container */
+        #app { max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px; }
 
-        /* App Container constrained for Mobile */
-        #app { width: 100%; max-width: 480px; min-height: 100vh; background: var(--bg-color); position: relative; padding-bottom: 70px; display: flex; flex-direction: column; }
-
-        /* Header */
-        header { background: var(--primary); color: white; padding: 20px; text-align: center; font-size: 1.2rem; font-weight: bold; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        /* Navigation */
+        nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; display: flex; border-top: 1px solid var(--border); z-index: 100; }
+        .nav-btn { flex: 1; padding: 20px; text-align: center; border: none; background: none; font-weight: 600; color: #94a3b8; cursor: pointer; }
+        .nav-btn.active { color: var(--primary); border-top: 3px solid var(--primary); }
 
         /* Views */
-        .view { display: none; padding: 20px; flex: 1; }
-        .view.active { display: block; animation: fadeIn 0.3s ease; }
+        .view { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Components */
+        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid var(--border); }
+        h1 { font-size: 1.5rem; margin-bottom: 1rem; text-align: center; color: var(--primary); }
+        h2 { font-size: 1.1rem; margin-bottom: 15px; }
 
-        /* Cards & Containers */
-        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: white; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; text-align: left; }
+        .btn:active { transform: scale(0.98); background: #f1f5f9; }
+        .btn-primary { background: var(--primary); color: white; border: none; text-align: center; margin-top: 10px; }
+        .btn-selected { border-color: var(--primary); background: #eef2ff; color: var(--primary); border-width: 2px; }
 
-        h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-main); }
-        p.subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
+        input { width: 100%; padding: 16px; border-radius: 12px; border: 2px solid var(--border); font-size: 1rem; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: var(--primary); }
 
-        /* Inputs & Buttons */
-        input[type="number"], input[type="text"] { width: 100%; padding: 15px; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem; margin-bottom: 15px; transition: border 0.2s; }
-        input:focus { outline: none; border-color: var(--primary); }
+        /* Progress */
+        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+        #progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
 
-        .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
-        .btn-primary { background: var(--primary); color: white; margin-top: 10px; }
-        .btn-primary:active { background: var(--primary-hover); }
-        
-        .option-btn { background: white; border: 2px solid var(--border); color: var(--text-main); margin-bottom: 10px; text-align: left; }
-        .option-btn:active, .option-btn.selected { border-color: var(--primary); background: #eef2ff; }
-
-        /* Progress Bar */
-        .progress-container { width: 100%; background: var(--border); border-radius: 10px; height: 8px; margin-bottom: 20px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
-
-        /* Analyzer Styles */
-        .result-item { padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid; background: #f9fafb; }
-        .result-correct { border-left-color: var(--success); }
-        .result-wrong { border-left-color: var(--danger); }
-        .result-item span { display: block; font-size: 0.9rem; margin-top: 5px; }
-        .score-circle { width: 120px; height: 120px; border-radius: 50%; border: 8px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto 20px; color: var(--primary); }
+        /* Analyzer */
+        .analyzer-item { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .correct-label { color: var(--success); font-weight: bold; }
+        .wrong-label { color: var(--danger); font-weight: bold; }
 
         /* Flashcards */
-        .flashcard-container { perspective: 1000px; width: 100%; height: 250px; margin-bottom: 20px; }
-        .flashcard { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; position: relative; }
-        .flashcard.flipped { transform: rotateY(180deg); }
-        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .flashcard-front { background: var(--card-bg); color: var(--primary); border: 2px solid var(--primary); }
-        .flashcard-back { background: var(--primary); color: white; transform: rotateY(180deg); }
-        .flashcard-face h3 { font-size: 1.5rem; margin-bottom: 10px; }
-        .flashcard-face p { font-size: 1rem; opacity: 0.9; }
-        .fc-controls { display: flex; gap: 10px; }
-
-        /* Bottom Nav */
-        nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 15px; border-top-right-radius: 15px; overflow: hidden; }
-        .nav-item { flex: 1; padding: 15px 0; text-align: center; font-weight: bold; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; }
-        .nav-item.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #f8fafc; }
-
+        .fc-container { height: 200px; perspective: 1000px; margin-bottom: 20px; }
+        .fc-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+        .fc-inner.flipped { transform: rotateY(180deg); }
+        .fc-front, .fc-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .fc-front { background: white; border: 2px solid var(--primary); color: var(--primary); }
+        .fc-back { background: var(--primary); color: white; transform: rotateY(180deg); }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <header id="header-title">A2 German Mastery</header>
-
-    <div id="view-setup" class="view active">
+    <div id="view-start" class="view active">
+        <h1>Deutsch A2</h1>
         <div class="card">
-            <h2>Start a New Quiz</h2>
-            <p class="subtitle">Questions are randomly selected and mixed (Multiple Choice, Fill-in, Translation).</p>
-            
-            <label style="font-weight: bold; margin-bottom: 10px; display: block;">Number of Questions:</label>
-            <button class="btn option-btn setup-qty" onclick="setQty(5)">5 Questions (Quick)</button>
-            <button class="btn option-btn setup-qty" onclick="setQty(10)">10 Questions</button>
-            <button class="btn option-btn setup-qty" onclick="setQty(20)">20 Questions</button>
-            
-            <div style="margin-top: 15px;">
-                <input type="number" id="custom-qty" placeholder="Or enter custom amount (e.g. 15)" min="1" max="50">
-            </div>
-
-            <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+            <h2>Select Quiz Length</h2>
+            <button class="btn qty-btn" onclick="selectQty(10, this)">10 Questions</button>
+            <button class="btn qty-btn" onclick="selectQty(20, this)">20 Questions</button>
+            <input type="number" id="custom-qty" placeholder="Custom amount...">
+            <button class="btn btn-primary" onclick="initQuiz()">Start Practice</button>
         </div>
     </div>
 
     <div id="view-quiz" class="view">
-        <div class="progress-container">
-            <div class="progress-bar" id="quiz-progress"></div>
-        </div>
-        <p class="subtitle" id="quiz-counter" style="text-align: center;">Question 1 of 10</p>
-        
-        <div class="card">
-            <h2 id="q-text">Question text here?</h2>
-            
-            <div id="q-input-area"></div>
-            
-            <button class="btn btn-primary" id="btn-next" onclick="submitAnswer()" style="margin-top: 20px; display: none;">Submit Answer</button>
-        </div>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+        <div id="quiz-content"></div>
     </div>
 
     <div id="view-results" class="view">
         <div class="card" style="text-align: center;">
-            <h2>Test Complete!</h2>
-            <div class="score-circle" id="result-percentage">0%</div>
-            <p class="subtitle" id="result-score-text">You got 0 out of 0 correct.</p>
-            <button class="btn btn-primary" onclick="switchTab('setup')">Take Another Quiz</button>
+            <h2>Result</h2>
+            <div id="final-percent" style="font-size: 3rem; font-weight: 800; color: var(--primary);">0%</div>
+            <p id="final-score-text"></p>
+            <button class="btn btn-primary" onclick="location.reload()">Restart</button>
         </div>
-
-        <h2 style="margin-top: 20px; margin-left: 5px;">Work Analyzer</h2>
-        <p class="subtitle" style="margin-left: 5px;">Review your answers below:</p>
-        <div id="analyzer-container">
+        <div class="card" id="analyzer-list">
+            <h2>Work Analyzer</h2>
             </div>
     </div>
 
-    <div id="view-flashcards" class="view">
-        <div class="card">
-            <h2 style="text-align: center;">A2 Vocabulary & Grammar</h2>
-            <p class="subtitle" style="text-align: center;" id="fc-counter">Card 1 of 10</p>
-            
-            <div class="flashcard-container" onclick="flipCard()">
-                <div class="flashcard" id="flashcard">
-                    <div class="flashcard-face flashcard-front">
-                        <h3 id="fc-front-text">Front</h3>
-                        <p>Tap to reveal</p>
-                    </div>
-                    <div class="flashcard-face flashcard-back">
-                        <h3 id="fc-back-text">Back</h3>
-                        <p id="fc-back-example">Example sentence</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="fc-controls">
-                <button class="btn option-btn" onclick="prevCard()">Previous</button>
-                <button class="btn btn-primary" onclick="nextCard()" style="margin-top:0;">Next</button>
+    <div id="view-flash" class="view">
+        <div class="fc-container">
+            <div class="fc-inner" id="fc-inner" onclick="this.classList.toggle('flipped')">
+                <div class="fc-front"><h2 id="fc-front">Wort</h2></div>
+                <div class="fc-back"><h2 id="fc-back">Meaning</h2><p id="fc-ex" style="font-size:0.8rem; margin-top:10px;"></p></div>
             </div>
         </div>
+        <button class="btn btn-primary" onclick="nextFlashcard()">Next Card</button>
     </div>
 
     <nav>
-        <div class="nav-item active" id="nav-quiz" onclick="switchTab('setup')">Quiz</div>
-        <div class="nav-item" id="nav-flashcards" onclick="switchTab('flashcards')">Flashcards</div>
+        <button class="nav-btn active" onclick="showView('start')">Quiz</button>
+        <button class="nav-btn" onclick="showView('flash')">Cards</button>
     </nav>
 </div>
 
 <script>
-    // --- DATA BANKS ---
     const questionBank = [
-        // Multiple Choice
-        { type: "mc", q: "Which is the correct past perfect form of: 'Ich gehe ins Kino'?", options: ["Ich bin ins Kino gegangen.", "Ich habe ins Kino gegangen.", "Ich bin ins Kino gegeht.", "Ich habe ins Kino gegeht."], correct: "Ich bin ins Kino gegangen." },
-        { type: "mc", q: "Word order: 'Ich bleibe zu Hause, weil...'", options: ["...ich krank bin.", "...ich bin krank.", "...bin ich krank.", "...krank ich bin."], correct: "...ich krank bin." },
-        { type: "mc", q: "'Ich stelle die Blume auf ___ Tisch.'", options: ["den", "dem", "der", "das"], correct: "den" },
-        { type: "mc", q: "Adjective ending: 'Das ist ein schön___ Auto.'", options: ["es", "e", "er", "en"], correct: "es" },
-        { type: "mc", q: "Past tense 'sein': 'Wir ___ gestern im Park.'", options: ["waren", "sind", "war", "wart"], correct: "waren" },
-        { type: "mc", q: "Possessive: 'Sie liebt ___ Hund.'", options: ["ihren", "ihr", "ihrem", "ihres"], correct: "ihren" },
-        
-        // Fill in the blanks
+        { type: "mc", q: "Which is the correct past perfect form of: 'Ich gehe ins Kino'?", options: ["Ich bin ins Kino gegangen.", "Ich habe ins Kino gegangen.", "Ich bin ins Kino gegeht."], correct: "Ich bin ins Kino gegangen." },
         { type: "fill", q: "Ich fahre mit ___ (my) Bruder.", correct: "meinem" },
+        { type: "mc", q: "Word order: 'Ich bleibe zu Hause, weil...'", options: ["...ich krank bin.", "...ich bin krank.", "...bin ich krank."], correct: "...ich krank bin." },
         { type: "fill", q: "Wir freuen ___ (ourselves) auf den Urlaub.", correct: "uns" },
-        { type: "fill", q: "Der Zug fährt ___ (at) 15 Uhr ab.", correct: "um" },
-        { type: "fill", q: "Das Buch gehört ___ (to me).", correct: "mir" },
-        
-        // Translation / Writing
-        { type: "write", q: "Translate to German: 'I would like to pay, please.'", correct: ["ich möchte bitte zahlen", "ich möchte zahlen bitte", "ich moechte bitte zahlen"] },
-        { type: "write", q: "Translate to German: 'The color of the car' (using 'von')", correct: ["die farbe von dem auto", "die farbe vom auto"] },
-        { type: "write", q: "Translate to English: 'Komm her!'", correct: ["come here", "come here!"] },
-        { type: "write", q: "Translate to German: 'I have to learn a lot today.'", correct: ["ich muss heute viel lernen", "heute muss ich viel lernen"] },
-        { type: "write", q: "Translate to English: 'Welches Kleid kaufst du?'", correct: ["which dress are you buying", "which dress are you buying?", "which dress do you buy", "which dress do you buy?"] }
+        { type: "mc", q: "'Ich stelle die Blume auf ___ Tisch.'", options: ["den", "dem", "der"], correct: "den" },
+        { type: "write", q: "Translate: 'I would like to pay, please.'", correct: "Ich möchte bitte zahlen." },
+        { type: "fill", q: "Past tense 'sein': 'Wir ___ gestern im Park.'", correct: "waren" },
+        { type: "write", q: "Translate: 'Which dress do you buy?'", correct: "Welches Kleid kaufst du?" },
+        { type: "mc", q: "Possessive: 'Sie liebt ___ Hund.'", options: ["ihren", "ihr", "ihrem"], correct: "ihren" },
+        { type: "fill", q: "Der Zug fährt ___ (at) 15 Uhr ab.", correct: "um" }
     ];
 
-    const flashcardBank = [
-        { front: "der Bahnhof", back: "Train station", example: "Ich warte am Bahnhof auf dich." },
-        { front: "anrufen (separable)", back: "To call (on the phone)", example: "Ich rufe dich morgen an." },
-        { front: "weil", back: "Because (moves verb to end)", example: "Ich lerne Deutsch, weil ich in Berlin lebe." },
-        { front: "der Bahnsteig", back: "Train platform", example: "Der Zug fährt auf Bahnsteig 3 ab." },
-        { front: "größer als", back: "Bigger than (comparative)", example: "Mein Haus ist größer als dein Haus." },
-        { front: "dass", back: "That (conjunction, verb to end)", example: "Ich glaube, dass es morgen regnet." }
+    const flashBank = [
+        { f: "anrufen", b: "to call (phone)", e: "Ich rufe dich morgen an." },
+        { f: "der Bahnsteig", b: "the platform", e: "Der Zug steht an Bahnsteig 4." },
+        { f: "weil", b: "because", e: "Ich bleibe hier, weil ich müde bin." }
     ];
 
-    // --- STATE VARIABLES ---
-    let quizQueue = [];
-    let currentQIndex = 0;
-    let userAnswers = []; // Array of { qText, userAnswer, correctAnswer, isCorrect, type }
-    let selectedQty = 10;
-    let tempMCAnswer = "";
+    let currentQuiz = [];
+    let currentIdx = 0;
+    let score = 0;
+    let quizQty = 10;
+    let resultsLog = [];
 
-    let currentCardIndex = 0;
-
-    // --- HELPER FUNCTIONS ---
-    function shuffle(array) {
-        let currentIndex = array.length, randomIndex;
-        while (currentIndex !== 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-        }
-        return array;
-    }
-
-    function normalizeText(text) {
-        // Removes punctuation, extra spaces, and makes lowercase for forgiving text matching
-        return text.toLowerCase().replace(/[.,!?]/g, "").trim().replace(/\s+/g, " ");
-    }
-
-    // --- UI NAVIGATION ---
-    function switchTab(tab) {
+    function showView(viewId) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('view-' + viewId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(viewId.replace('start','quiz'))));
+    }
+
+    function selectQty(n, btn) {
+        quizQty = n;
+        document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('btn-selected'));
+        btn.classList.add('btn-selected');
+    }
+
+    function initQuiz() {
+        const custom = document.getElementById('custom-qty').value;
+        const finalQty = custom ? parseInt(custom) : quizQty;
+        currentQuiz = [...questionBank].sort(() => 0.5 - Math.random()).slice(0, finalQty);
+        currentIdx = 0;
+        score = 0;
+        resultsLog = [];
+        showView('quiz');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = currentQuiz[currentIdx];
+        const progress = ((currentIdx / currentQuiz.length) * 100);
+        document.getElementById('progress-fill').style.width = progress + "%";
+
+        let html = `<div class="card"><h2>${q.q}</h2>`;
         
-        if(tab === 'setup') {
-            document.getElementById('view-setup').classList.add('active');
-            document.getElementById('nav-quiz').classList.add('active');
-            document.getElementById('header-title').innerText = "Quiz Setup";
-        } else if(tab === 'flashcards') {
-            document.getElementById('view-flashcards').classList.add('active');
-            document.getElementById('nav-flashcards').classList.add('active');
-            document.getElementById('header-title').innerText = "Flashcards";
-            loadFlashcard();
-        } else if(tab === 'quiz') {
-            document.getElementById('view-quiz').
+        if (q.type === 'mc') {
+            q.options.forEach(opt => {
+                html += `<button class="btn" onclick="checkAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>`;
+            });
+        } else {
+            html += `<input type="text" id="write-input" placeholder="Your answer...">
+                     <button class="btn btn-primary" onclick="checkAnswer(document.getElementById('write-input').value)">Submit</button>`;
+        }
+        
+        html += `</div>`;
+        document.getElementById('quiz-content').innerHTML = html;
+    }
+
+    function checkAnswer(userAns) {
+        const q = currentQuiz[currentIdx];
+        const isCorrect = userAns.toLowerCase().trim() === q.correct.toLowerCase().trim();
+        
+        if (isCorrect) score++;
+        
+        resultsLog.push({ q: q.q, user: userAns, correct: q.correct, status: isCorrect });
+        
+        currentIdx++;
+        if (currentIdx < currentQuiz.length) {
+            renderQuestion();
+        } else {
+            showFinalResults();
+        }
+    }
+
+    function showFinalResults() {
+        showView('results');
+        const percent = Math.round((score / currentQuiz.length) * 100);
+        document.getElementById('final-percent').innerText = percent + "%";
+        document.getElementById('final-score-text').innerText = `Scored ${score} / ${currentQuiz.length}`;
+
+        const list = document.getElementById('analyzer-list');
+        list.innerHTML = '<h2>Work Analyzer</h2>';
+        resultsLog.forEach(item => {
+            list.innerHTML += `
+                <div class="analyzer-item">
+                    <strong>Q: ${item.q}</strong><br>
+                    <span class="${item.status ? 'correct-label' : 'wrong-label'}">
+                        Your answer: ${item.user || '(Empty)'}
+                    </span><br>
+                    ${!item.status ? `<span>Correct: ${item.correct}</span>` : ''}
+                </div>`;
+        });
+    }
+
+    let cardIdx = 0;
+    function nextFlashcard() {
+        document.getElementById('fc-inner').classList.remove('flipped');
+        setTimeout(() => {
+            cardIdx = (cardIdx + 1) % flashBank.length;
+            document.getElementById('fc-front').innerText = flashBank[cardIdx].f;
+            document.getElementById('fc-back').innerText = flashBank[cardIdx].b;
+            document.getElementById('fc-ex').innerText = flashBank[cardIdx].e;
+        }, 200);
+    }
+    nextFlashcard(); // Init first card
+</script>
+
+</body>
+</html>
