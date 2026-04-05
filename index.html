@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German A2 Quiz</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        #quiz-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #2d3436; font-size: 1.2rem; }
+        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dfe6e9; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: 0.2s; font-size: 1rem; }
+        .option-btn:hover { border-color: #0984e3; background: #f1f9ff; }
+        #score-area { text-align: center; display: none; }
+        #progress { font-size: 0.8rem; color: #636e72; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="quiz-area">
+        <div id="progress">Question 1 of 20</div>
+        <h2 id="question-text">Loading question...</h2>
+        <div id="options-bin"></div>
+    </div>
+    <div id="score-area">
+        <h2>Quiz Complete!</h2>
+        <p id="final-score" style="font-size: 2rem; font-weight: bold; color: #00b894;"></p>
+        <button onclick="location.reload()" class="option-btn" style="text-align:center; background:#0984e3; color:white; border:none;">Try Again</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "Which is the correct past perfect form of: 'Ich gehe ins Kino'?", options: ["Ich bin ins Kino gegangen.", "Ich habe ins Kino gegangen.", "Ich bin ins Kino gegeht.", "Ich habe ins Kino gegeht."], correct: 0 },
+        { q: "Fill in: 'Ich fahre mit ___ (my) Bruder.'", options: ["meinem", "mein", "meinen", "meines"], correct: 0 },
+        { q: "Word order: 'Ich bleibe zu Hause, weil...'", options: ["...ich krank bin.", "...ich bin krank.", "...bin ich krank.", "...krank ich bin."], correct: 0 },
+        { q: "'Ich stelle die Blume auf ___ Tisch.'", options: ["den", "dem", "der", "das"], correct: 0 },
+        { q: "Conjugate: 'Du ___ heute viel lernen.'", options: ["musst", "müsst", "muss", "müssen"], correct: 0 },
+        { q: "Adjective ending: 'Das ist ein schön___ Auto.'", options: ["es", "e", "er", "en"], correct: 0 },
+        { q: "'I would like to pay, please.'", options: ["Ich möchte bitte zahlen.", "Ich möchte bitte bestellen.", "Die Rechnung stimmt.", "Ich lade dich ein."], correct: 0 },
+        { q: "Separable verb: 'anrufen'", options: ["Ich rufe dich morgen an.", "Ich anrufe dich morgen.", "Ich rufe an dich morgen.", "Ich anruf dich morgen."], correct: 0 },
+        { q: "Past tense 'sein': 'Wir ___ gestern im Park.'", options: ["waren", "sind", "war", "wart"], correct: 0 },
+        { q: "Possessive: 'Sie liebt ___ Hund.'", options: ["ihren", "ihr", "ihrem", "ihres"], correct: 0 },
+        { q: "Reflexive: 'Wir freuen ___ auf den Urlaub.'", options: ["uns", "euch", "sich", "mich"], correct: 0 },
+        { q: "Comparative: 'Mein Haus ist ___ als dein Haus.'", options: ["größer", "groß", "am größten", "mehr groß"], correct: 0 },
+        { q: "Time: 'Der Zug fährt ___ 15 Uhr ab.'", options: ["um", "am", "im", "an"], correct: 0 },
+        { q: "Conjunction: 'Ich glaube, ___ es morgen regnet.'", options: ["dass", "ob", "weil", "wenn"], correct: 0 },
+        { q: "Plural of 'das Buch':", options: ["die Bücher", "die Büchs", "die Buchen", "die Bucher"], correct: 0 },
+        { q: "Imperative (informal):", options: ["Komm her!", "Kommen Sie her!", "Kommt her!", "Kommst her!"], correct: 0 },
+        { q: "'The color of the car' (spoken):", options: ["Die Farbe von dem Auto", "Die Farbe das Auto", "Das Auto die Farbe", "Die Farbe den Auto"], correct: 0 },
+        { q: "'___ Kleid kaufst du?' (Which dress?)", options: ["Welches", "Welcher", "Welchen", "Welche"], correct: 0 },
+        { q: "Train platform:", options: ["der Bahnsteig", "der Bahnhof", "der Fahrplan", "die Fahrkarte"], correct: 0 },
+        { q: "'Das Buch gehört ___.' (to me)", options: ["mir", "mich", "ich", "mein"], correct: 0 }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        if (currentQ < questions.length) {
+            document.getElementById('progress').innerText = `Question ${currentQ + 1} of 20`;
+            document.getElementById('question-text').innerText = questions[currentQ].q;
+            const bin = document.getElementById('options-bin');
+            bin.innerHTML = '';
+            questions[currentQ].options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                bin.appendChild(btn);
+            });
+        } else {
+            showResults();
+        }
+    }
+
+    function checkAnswer(idx) {
+        if (idx === questions[currentQ].correct) score++;
+        currentQ++;
+        loadQuestion();
+    }
+
+    function showResults() {
+        document.getElementById('quiz-area').style.display = 'none';
+        document.getElementById('score-area').style.display = 'block';
+        document.getElementById('final-score').innerText = `${score} / 20`;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
